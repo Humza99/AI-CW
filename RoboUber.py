@@ -189,7 +189,27 @@ def runRoboUber(worldX,worldY,runTime,stop,junctions=None,streets=None,interpola
             svcArea.runWorld(ticks=1, outputs=outputValues)
             if threadTime != svcArea.simTime:
                threadTime += 1
-            time.sleep(1)
+            time.sleep(0.05)
+
+   # print taxi revenue to terminal 
+
+   # taxi0rev = taxi0._account 
+   # taxi1rev = taxi1._account 
+   # taxi2rev = taxi2._account 
+   # taxi3rev = taxi3._account 
+   # print(taxi0rev)
+   # print(taxi1rev)
+   # print(taxi2rev)
+   # print(taxi3rev)
+
+   # #print dispatchers revenue 
+
+   # print(dispatcher0._revenue)
+
+   # # total revenue of all parties
+
+   # print(taxi0rev + taxi1rev + taxi2rev + taxi3rev - dispatcher0._revenue)
+
 
 # event to manage a user exit, invoked by pressing 'q' on the keyboard
 userExit = threading.Event()
