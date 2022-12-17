@@ -189,7 +189,7 @@ def runRoboUber(worldX,worldY,runTime,stop,junctions=None,streets=None,interpola
             svcArea.runWorld(ticks=1, outputs=outputValues)
             if threadTime != svcArea.simTime:
                threadTime += 1
-            time.sleep(0.05)
+            time.sleep(0.3)
 
    # print taxi revenue to terminal 
 
@@ -202,11 +202,11 @@ def runRoboUber(worldX,worldY,runTime,stop,junctions=None,streets=None,interpola
    # print(taxi2rev)
    # print(taxi3rev)
 
-   # #print dispatchers revenue 
+   # print dispatchers revenue 
 
    # print(dispatcher0._revenue)
 
-   # # total revenue of all parties
+   # total revenue of all parties
 
    # print(taxi0rev + taxi1rev + taxi2rev + taxi3rev - dispatcher0._revenue)
 

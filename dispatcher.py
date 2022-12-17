@@ -1,6 +1,7 @@
 import math
 import numpy
 import heapq
+import CSP
 
 # a data container for all pertinent information related to fares. (Should we
 # add an underway flag and require taxis to acknowledge collection to the dispatcher?)
@@ -183,6 +184,8 @@ class Dispatcher:
       ''' HERE IS THE PART THAT YOU NEED TO MODIFY
       '''
 
+      
+
       '''this internal method should decide a 'reasonable' cost for the fare. Here, the computation
          is trivial: add a fixed cost (representing a presumed travel time to the fare by a given
          taxi) then multiply the expected travel time by the profit-sharing ratio. Better methods
@@ -207,7 +210,7 @@ class Dispatcher:
       def _allocateFare(self, origin, destination, time):
            # a very simple approach here gives taxis at most 5 ticks to respond, which can
            # surely be improved upon.
-          if self._parent.simTime-time > 5:
+          if self._parent.simTime-time > 20: #increasing the taxis time to respond to fares (was 5)
              allocatedTaxi = -1
              winnerNode = None
              fareNode = self._parent.getNode(origin[0],origin[1])
@@ -234,4 +237,17 @@ class Dispatcher:
                                 # but if so, allocate the taxi.
                                 self._fareBoard[origin][destination][time].taxi = allocatedTaxi     
                                 self._parent.allocateFare(origin,self._taxis[allocatedTaxi])
-     
+          
+                # we start with just the start point (current location of the agent) The start
+                # point has a fixed assignment; 
+                cspVars = [CSP.CSPNode('start',((0,self._parent[0],self._parent[1]),))]
+                cspVars[0].setFixedValue((0,self._parent[0],self._parent[1]))                           
+                # key constraints:
+                # A: Each point is reachable from the other by at least the time in Manhattan (x+y) distance units.
+                # B: No point is visited more than once
+                # C: 2 points cannot be occupied at the same time.
+                constraints = [lambda p, q: abs(p[1]-q[1])+abs(p[2]-q[2]) <= abs(p[0] - q[0]) and
+                               (p[1],p[2]) != (q[1],q[2]) and p[0] != q[0]]
+                while (self._path is not None and
+                       len([node for node in self._goals if node in self._parent]) != len(self._goals)):
+                      self._path = self._constrainedSearch(cspVars, constraints)

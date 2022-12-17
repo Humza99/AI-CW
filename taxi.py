@@ -301,6 +301,7 @@ class Taxi:
       # recvMsg handles various dispatcher messages. 
       def recvMsg(self, msg, **args):
           timeOfMsg = self._world.simTime
+
           # A new fare has requested service: add it to the list of availables
           if msg == self.FARE_ADVICE:
              callTime = self._world.simTime
@@ -333,46 +334,51 @@ class Taxi:
       # journey. Below is a naive depth-first search implementation. You should be able
       # to do much better than this!
 
-      # A* search is an informed search, and expects a heuristic, which should be a
-      # function of 2 variables, both tuples, the start, and the target.
+      # A* search - informed search
+      
       def _planPath(self, origin, destination, heuristic=None):
-          if origin not in self._map:
-             return None
-          if origin == destination:
-            return [origin]
-          if heuristic is None: heuristic = lambda x, y: math.sqrt((x[0]-y[0])**2+(x[1]-y[1])**2)
+         
+         #set heuristic for function 
+         if heuristic is None: heuristic = lambda x, y: math.sqrt((x[0]-y[0])**2+(x[1]-y[1])**2)
  
-          # these are the nodes that have been completely expanded, so don't need to be traced backwards
-          searched = set()
+         # nodes that have been explored
+         searched = set()
 
-          # these are the nodes still to be explored, sorted by estimated cost. They need to have
-          # the complete path stored because any one of them might contain the best solution. We
-          # arrange this as a nested dictionary to get a reasonably straightforward way to look up
-          # the cheapest path. A heap could also work but introduces implementation complexities.
+         # nodes that need to be explored
+         expanded = {heuristic(origin, destination): {origin: [origin]}}
 
-          expanded = {heuristic(origin, destination): {origin: [origin]}}
-                       
-          while len(expanded) > 0:
+         # check starting point in world
+         if origin in self._map:
+            if origin == destination:
+               return [origin]
+
+            while len(expanded) > 0:
+               # least amount of nodes == best route
                 bestRoute = min(expanded.keys())
+                # best path will be followed
                 nextSearch = expanded[bestRoute]
+                # return if destination found
                 if destination in nextSearch:
                   return nextSearch[destination]
+                # remove next node from dict
                 nextNode = nextSearch.popitem()
                 while len(nextSearch) > 0 and nextNode[0] in searched:
                       nextNode = nextSearch.popitem()
                 if len(nextSearch) == 0:
                    del expanded[bestRoute]
+                # do this if node isnt in searched set
                 if nextNode[0] not in searched:
                    searched.add(nextNode[0])
                    nextTargets = [node for node in self._map[nextNode[0]].items() if node[0] not in searched]
+                   # nodes still to explore 
                    while len(nextTargets) > 0:
                          expTarget = nextTargets.pop()
-                         approxDistance = bestRoute-heuristic(nextNode[0],destination) + heuristic(expTarget[0],destination)
+                         approxDistance = bestRoute-heuristic(nextNode[0],destination)+ int (expTarget[1][1])
                          if approxDistance in expanded:             
                             expanded[approxDistance][expTarget[0]] = nextNode[1] + [expTarget[0]]
                          else:
                             expanded[approxDistance] = {expTarget[0]: nextNode[1] + [expTarget[0]]}
-          return []
+            return []
 
 
       # TODO
